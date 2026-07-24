@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Packet Journey</title>
+
+    <style>
+      body {
+        background: #0b1220;
+        color: #e8ecf1;
+        font-family: "Segoe UI", sans-serif;
+        padding: 40px;
+      }
+
+      #stations {
+        display: flex;
+        gap: 16px;
+        margin-top: 30px;
+      }
+
+      .station {
+        padding: 10px 14px;
+        border: 1px solid #2a3548;
+        border-radius: 6px;
+        color: #8b99b0;
+        font-size: 13px;
+        transition: all 0.3s ease;
+      }
+
+      .station.active {
+        border-color: #4fd1c5;
+        color: #e8ecf1;
+        background: rgba(79, 209, 197, 0.15);
+        box-shadow: 0 0 10px rgba(79, 209, 197, 0.4);
+      }
+
+      #result {
+        font-family: monospace;
+        color: #f5a623;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+
+      input,
+      button {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>How does the internet actually work?</h1>
+    <p>Type a domain below to trace it's journey</p>
+
+    <form id="traceForm">
+      <input
+        type="text"
+        id="domainInput"
+        placeholder="example.com"
+        value="wikipedia.org"
+      />
+      <button type="submit">Trace -></button>
+    </form>
+    <div id="stations">
+      <div class="station" id="station-device">Your device</div>
+      <div class="station" id="station-router">Local router</div>
+      <div class="station" id="station-dns">DNS resolver</div>
+      <div class="station" id="station-backbone">ISP / backbone</div>
+      <div class="station" id="station-server">Destination server</div>
+      <div class="station" id="station-response">Response returns</div>
+    </div>
+    <p id="result"></p>
+
+    <script>
+      const form = document.getElementById("traceForm");
+
+      //DNS lookup
+      async function resolveDNS(domain) {
+        const url = `https://cloudflare-dns.com/dns-query?name=${domain}&type=A`;
+        const response = await fetch(url, {
+          headers: { Accept: "application/dns-json" },
+        });
+
+        const data = await response.json();
+        const answer = data.Answer
+          ? data.Answer.find((a) => a.type === 1)
+          : null;
+        const ip = answer ? answer.data : "couldn't resolve.";
+
+        document.getElementById("result").textContent = `${domain} -> ${ip}`;
+      }
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function runTrace(domain) {
+        const stationIds = [
+          "device",
+          "router",
+          "dns",
+          "backbone",
+          "server",
+          "response",
+        ];
+
+        // clear any previous run's highlighting
+        stationIds.forEach((id) => {
+          document.getElementById(`station-${id}`).classList.remove("active");
+        });
+        document.getElementById("result").textContent = "";
+
+        for (const id of stationIds) {
+          document.getElementById(`station-${id}`).classList.add("active");
+
+          if (id === "dns") {
+            await resolveDNS(domain); // wait for the real lookup before moving on
+          } else {
+            await sleep(600); // pause so you can actually see each step
+          }
+        }
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const domain = document.getElementById("domainInput").value.trim();
+        runTrace(domain);
+      });
+    </script>
+  </body>
+</html>
