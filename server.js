@@ -12,7 +12,7 @@ app.use(
 );
 
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static("."));
 
 app.post("/api/explain", async (req, res) => {
   const { station, domain } = req.body;
@@ -26,7 +26,7 @@ Be concrete and specific, not generic. No markdown, no headers, plain text only.
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
-        headers: { "Content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
         }),
@@ -34,19 +34,19 @@ Be concrete and specific, not generic. No markdown, no headers, plain text only.
     );
 
     const data = await response.json();
+    console.log("Gemini raw response:", JSON.stringify(data));
+
     const text =
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No explanantion available. ";
-
+      "No explanation available.";
     res.json({ explanation: text.trim() });
   } catch (error) {
-    console.error("GEMINI API error:", error);
-    res.status(
-      500,
-      json({
-        explanation: "Something went wrong generating tgus explanation.",
-      }),
-    );
+    console.error("Gemini API error:", error);
+    res
+      .status(500)
+      .json({
+        explanation: "Something went wrong generating this explanation.",
+      });
   }
 });
 
