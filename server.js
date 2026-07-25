@@ -3,6 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const fetch = require("node-fetch");
 
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 6, // one full trace = 6 station calls
+  message: { explanation: "Too many requests — please wait a minute and try again." }
+});
+
 const app = express();
 
 app.use(
@@ -14,7 +22,7 @@ app.use(
 app.use(express.json());
 app.use(express.static("."));
 
-app.post("/api/explain", async (req, res) => {
+app.post("/api/explain",limiter, async (req, res) => {
   const { station, domain } = req.body;
 
   const prompt = `You're explaining networking concepts to someone learning cybersecurity for the first time.
@@ -23,7 +31,7 @@ Be concrete and specific, not generic. No markdown, no headers, plain text only.
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -42,11 +50,9 @@ Be concrete and specific, not generic. No markdown, no headers, plain text only.
     res.json({ explanation: text.trim() });
   } catch (error) {
     console.error("Gemini API error:", error);
-    res
-      .status(500)
-      .json({
-        explanation: "Something went wrong generating this explanation.",
-      });
+    res.status(500).json({
+      explanation: "Something went wrong generating this explanation.",
+    });
   }
 });
 
