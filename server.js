@@ -12,6 +12,7 @@ const limiter = rateLimit({
 });
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(
   cors({
@@ -31,7 +32,7 @@ Be concrete and specific, not generic. No markdown, no headers, plain text only.
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
