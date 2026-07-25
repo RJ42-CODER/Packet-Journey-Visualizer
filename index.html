@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Packet Journey — Week 1</title>
+    <title>Packet Journey</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap"
@@ -247,7 +247,7 @@
   </head>
   <body>
     <div class="wrap">
-      <div class="eyebrow">Week 01 — Networking Foundations</div>
+      <div class="eyebrow">Packet Journey</div>
       <h1>How does the internet actually work?</h1>
       <p class="sub">
         Type a domain. Watch the request travel from your device to the server
@@ -339,11 +339,17 @@
       async function fetchExplanation(stationId, domain) {
         document.getElementById("explanation").textContent = "Thinking…";
         try {
-          const res = await fetch("http://localhost:4000/api/explain", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ station: stationLabels[stationId], domain }),
-          });
+          const res = await fetch(
+            "https://packet-journey-visualizer.onrender.com/api/explain",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                station: stationLabels[stationId],
+                domain,
+              }),
+            },
+          );
           const data = await res.json();
           document.getElementById("explanation").textContent = data.explanation;
         } catch (err) {
@@ -395,7 +401,7 @@
           const ref = document.getElementById("reference");
           ref.href = referenceLinks[id];
           ref.style.display = "inline-block";
-          
+
           progress.style.width = `${(i / (stationIds.length - 1)) * 100}%`;
           previousId = id;
 
