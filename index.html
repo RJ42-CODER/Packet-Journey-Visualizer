@@ -339,8 +339,7 @@
       async function fetchExplanation(stationId, domain) {
         document.getElementById("explanation").textContent = "Thinking…";
         try {
-          const res = await fetch(
-            "https://packet-journey-visualizer.onrender.com/api/explain",
+          const res = await fetch("/api/explain",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },

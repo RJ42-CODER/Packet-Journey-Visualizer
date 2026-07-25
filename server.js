@@ -12,10 +12,7 @@ app.use(
 );
 
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Packet Journey backend is running.");
-});
+app.use(express.static('.'));
 
 app.post("/api/explain", async (req, res) => {
   const { station, domain } = req.body;
